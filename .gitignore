@@ -4,6 +4,7 @@
 
 
 .env
+dockerHub/.env
 
 mongo/
 postgres/
