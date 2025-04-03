@@ -8,12 +8,19 @@ services:
     image: nruz176/node-auth-mongose
     restart: always
     working_dir: /usr/src/app
-    volumes:
-      - .:/usr/src/app
+    #volumes:
+    #  - .:/usr/src/app
     command: sh -c "npm install && npm run start"
     environment:
       PORT: ${PORT}
-      MONGO_URI: ${MONGO_URL}
+      MONGO_URL: ${MONGO_URL}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      JWT_SEED: ${JWT_SEED}
+      MAILER_ACTIVE: ${MAILER_ACTIVE}
+      MAILER_SERVICE: ${MAILER_SERVICE}
+      MAILER_EMAIL: ${MAILER_EMAIL}
+      MAILER_SECRET_KEY: ${MAILER_SECRET_KEY}
+      WEBSERVICE_URL: ${WEBSERVICE_URL}
       JWT_SECRET: ${JWT_SECRET}
     ports:
       - "${PORT}:${PORT}"
