@@ -1,0 +1,60 @@
+# ETAPA 1: Dependencias
+FROM node:21-alpine3.19 AS deps
+
+# Establece el directorio de trabajo
+WORKDIR /usr/src/app
+
+# Copia los archivos del proyecto
+COPY package.json  package-lock.json tsconfig.json ./
+
+# Instala las dependencias (incluyendo bcrypt)
+RUN npm install
+
+# ETAPA 2: Builder - Construye la aplicación
+FROM node:21-alpine3.19 AS build
+
+WORKDIR /usr/src/app
+
+# Copiar de deps, los módulos de node
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+
+# Copia el resto del código fuente
+COPY . .
+
+#RUN npx prisma generate
+
+# RUN npm run test
+
+RUN npm run build
+
+# Asegura permisos correctos (opcional, útil si hay errores de permisos)
+RUN chown -R node:node /usr/src/app
+
+# ETAPA 3: Crear la imagen final de Docker (Producción)
+FROM node:21-alpine3.19 AS prod
+
+# Variable de entorno para la versión de la app (Configurar secret manager)
+ARG VERSION
+
+ENV NODE_ENV=$VERSION
+
+WORKDIR /usr/src/app
+
+COPY package.json  package-lock.json tsconfig.json ./
+
+#Elimina todas las dependencias actuales y vuelve a instalar solo las de producción
+RUN npm ci -f --only=production && npm cache clean --force
+
+# Copiar la carpeta de node_modules
+COPY --from=build /usr/src/app/node_modules ./node_modules
+
+# Copiar la carpeta de DIST
+COPY --from=build /usr/src/app/dist ./dist
+
+#USER node
+
+# Expone el puerto de la aplicación (cambia según tu configuración)
+EXPOSE 5000
+
+# Comando para ejecutar la aplicación
+CMD [ "node", "dist/main.js" ]

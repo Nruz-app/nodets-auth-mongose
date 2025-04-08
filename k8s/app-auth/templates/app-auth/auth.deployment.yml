@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: auth
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: auth
+    spec:
+      containers:
+      - image: nruz176/node-auth-mongose
+        name: node-auth
+        resources: {}
+        env:
+        - name: PORT
+          value: "5000"
+        - name: WEBSERVICE_URL
+          value: "http://localhost:5000/api"
+        - name: JWT_SEED
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: JWT_SEED
+        - name: MONGO_URL
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: MONGO_URL
+        - name: MONGO_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: MONGO_DB_NAME
+        - name: MAILER_ACTIVE
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: MAILER_ACTIVE
+        - name: MAILER_SERVICE
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: MAILER_SERVICE
+        - name: MAILER_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: MAILER_EMAIL
+        - name: MAILER_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: auth-secret
+              key: MAILER_SECRET_KEY                                        
+status: {}
